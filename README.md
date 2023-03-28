@@ -45,11 +45,11 @@ To execute tests, run following command
 
 ## Other details
 
-To execute users bytecode initialize VM
+To execute users bytecode initialize VM...
 ```bash
 vm = VMProcessor()
 ```
-Run following (*bytecode* is a list with commands)
+...and run following (*bytecode* is a list with commands)
 ```bash
 vm.run(bytecode)
 ```

@@ -3,7 +3,7 @@ from typing import List, Optional
 
 class VMProcessor:
     iter: Optional[int] = None
-    reg: List[int] = [None] * 16
+    reg: List[int] = [0] * 16
 
     def __init__(self):
         """
@@ -23,42 +23,54 @@ class VMProcessor:
             0x03: self.__add
         }
 
-    def run(self, bytecode: list):
-        self.iter = 0
+    def run(self, bytecode: list, start_iter: int = 0):
+        self.iter = start_iter
 
         while self.iter < len(bytecode):
-            op = bytecode[self.iter]
+            try:
+                op = bytecode[self.iter]
+            except KeyError as e:
+                raise ValueError('unknown command')
+
             self.cmds[op](bytecode)
             self.iter += 1
+
+        self.iter = None
+
+    def reset(self):
+        self.reg = [0] * 16
+        self.iter = None
 
     def __idle(self, bytecode):
         print('idle')
         pass
 
     def __load(self, bytecode):
-        op0 = self.__next_op(bytecode)
-        op1 = self.__next_op(bytecode)
-        self.reg[op0] = op1
-        print(f'reg[{op0}]: {self.reg[op0]}')
+        try:
+            op0 = self.__next_op(bytecode)
+            op1 = self.__next_op(bytecode)
+            self.reg[op0] = op1
+            print(f'reg[{op0}]: {self.reg[op0]}')
+        except IndexError as e:
+            raise ValueError
 
     def __inc(self, bytecode):
-        op0 = self.__next_op(bytecode)
-        self.reg[op0] += 1
-        print(f'reg[{op0}]: {self.reg[op0]}')
+        try:
+            op0 = self.__next_op(bytecode)
+            self.reg[op0] += 1
+            print(f'reg[{op0}]: {self.reg[op0]}')
+        except IndexError as e:
+            raise ValueError
 
     def __add(self, bytecode):
-        op0 = self.__next_op(bytecode)
-        op1 = self.__next_op(bytecode)
-        self.reg[op0] = self.reg[op0] + self.reg[op1]
-        print(f'reg[{op0}]: {self.reg[op0]}')
+        try:
+            op0 = self.__next_op(bytecode)
+            op1 = self.__next_op(bytecode)
+            self.reg[op0] = self.reg[op0] + self.reg[op1]
+            print(f'reg[{op0}]: {self.reg[op0]}')
+        except IndexError as e:
+            raise ValueError
 
     def __next_op(self, bytecode):
         self.iter += 1
         return bytecode[self.iter]
-
-
-if __name__ == '__main__':
-    vm = VMProcessor()
-
-    vm.run([0x00])
-    
